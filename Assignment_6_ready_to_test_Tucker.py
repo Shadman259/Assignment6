@@ -1,0 +1,345 @@
+
+class User:
+    #attribute
+    
+    #constructor
+    def __init__(self, first, last, ID):
+        self.first = first
+        self.last = last
+        self.ID = ID
+        
+    #methods
+    def setFirst(self, first):
+        self.first = first
+    def setLast(self, last):
+        self.last = last
+    def setID(self, ID):
+        self.ID = ID
+    def getInfo(self):
+       print("First Name: ", self.first, "\nLast Name: ", self.last, "\nID: ", self.ID )
+    def Search(self):
+        print("\nCourse")
+        cursor.execute("SELECT * FROM COURSE")
+        query_result = cursor.fetchall()
+        for i in query_result:
+            print(i)
+        return True
+    def Search_Parameters(self):
+        #print("Search by parameters was Successfully Used")
+        parameter_option = int(input("Select Parameter\n1. CRN (ID)\n2. Title\n3. Department\n4. Time\n5. Weekday\n6. Credits\n7. Exit\n"))
+        if parameter_option == 1:
+            u_CRN = input("Enter CRN: ")
+            self.search_CRN(u_CRN)
+        if parameter_option == 2:
+            u_Title = input("Enter Title: ")
+            self.search_Title(u_Title)
+        if parameter_option == 3:
+            u_DEPT = input("Enter Department: ")
+            self.search_DEPT(u_DEPT)
+        if parameter_option == 4:
+            u_Time = input("Enter Time (Ex: 12:30PM): ")
+            self.search_Time(u_Time)
+        if parameter_option == 5:
+            u_Day = input("Enter Weekdays (Ex: T/TR, M/F, W): ")
+            self.search_Weekday(u_Day)
+        if parameter_option == 6:
+            #u_Credits = int(input("Enter Number of Credits: "))
+            #print(self.get_integer("Enter Number of Credits: ","The Number of Credits Must be an Integer"))
+            u_Credits = self.get_integer("Enter Number of Credits: ","The Number of Credits Must be an Integer")
+            self.search_Credits(u_Credits)
+            
+
+
+
+    def search_CRN(self,u_CRN):
+        cursor.execute("SELECT * FROM COURSE WHERE CRN =?", (u_CRN,))
+        query_result = cursor.fetchall()
+        if query_result:
+                for i in query_result:
+                    print(i)
+                t_f = True
+        else:
+                print("No CRN of " + u_CRN + " Exists in the System")
+                t_f = False
+        return t_f
+    def search_Title(self,u_Title):
+         u_Title = u_Title.capitalize()
+         cursor.execute("SELECT * FROM COURSE WHERE TITLE = ?", (u_Title,))
+         query_result = cursor.fetchall()
+         if query_result:
+                for i in query_result:
+                    print(i)
+                t_f = True
+         else:
+                print('No Course has Title "' + u_Title + '"')
+                t_f = False
+         return t_f
+    def search_DEPT(self, u_DEPT):
+        u_DEPT = u_DEPT.upper()
+        cursor.execute("SELECT * FROM COURSE WHERE DEPT = ?", (u_DEPT,))
+        query_result = cursor.fetchall()
+        if query_result:
+            for i in query_result:
+                print(i)
+            t_f = True
+        else:
+            print('No Course has Department "' + u_DEPT + '"')
+            t_f = False
+        return t_f
+    def search_Time(self,u_Time):
+        u_Time = u_Time.upper()
+        cursor.execute("SELECT * FROM COURSE WHERE time = ?", (u_Time,))
+        query_result = cursor.fetchall()
+        if query_result:
+            for i in query_result:
+                print(i)
+            t_f = True
+        else:
+            print('No Course in the System Has a Start Time of "' + u_Time +'"')
+            print("\n***Make Sure to Enter the Time in this Format: Hour:MinutesAM/PM (Ex: 12:30PM)")
+            t_f = False
+        return t_f
+    def search_Weekday(self, u_Day):
+        u_Day = u_Day.upper()
+        cursor.execute("SELECT * FROM COURSE WHERE weekday = ?", (u_Day,))
+        query_result = cursor.fetchall()
+        if query_result:
+            for i in query_result:
+                print(i)
+            t_f = True
+        else:
+            print('No Course in the System has Weekdays "' + u_Day + '"')
+            print("\n***Make Sure to Enter the Weekdays in this Format: Weekday/Weekday  (Ex: T/TR, M/F, W)")
+            t_f = False
+        return t_f
+    def search_Credits(self,u_Credits: int):
+        
+        cursor.execute("SELECT * FROM COURSE WHERE credits = ?", (u_Credits,))
+        query_result = cursor.fetchall()
+        if query_result:
+            for i in query_result:
+                print(i)
+            t_f = True
+        else:
+            print('No Course in the System has "',u_Credits,'" Credits')
+            t_f = False
+        return t_f
+    def get_integer(self,num: str, error_message: str = "") -> int:
+        while True:
+            try:
+                return int(input(num))
+            except ValueError:
+                print(error_message)
+class Student(User):
+    #attribute
+    #constructor
+    def __init__(self, first, last, ID):
+        User.__init__(self, first, last, ID)
+        
+        
+    #methods
+    def AddCourse(self): 
+        print("Add Course was Successfully Used")
+        course_id = input("Enter the course ID to add: ")
+        cursor.execute("SELECT * FROM ENROLLMENT WHERE ENROLLMENT.student_id = ? AND ENROLLMENT.course_id = ?", (self.ID, course_id))
+        if cursor.fetchone():
+            print("Course with CRN " + course_id + " is already on your schedule.\n")
+        else:
+           cursor.execute("INSERT INTO ENROLLMENT (student_id, course_id) VALUES (?, ?)", (self.ID, course_id))
+           conn.commit()
+          # cursor.execute("SELECT * FROM COURSE, ENROLLMENT GROUP BY COURSE.time, COURSE.weekday HAVING COUNT(*) > 1 AND ENROLLMENT.student_id = ? AND ENROLLMENT.course_id = ?", (self.ID, course_id))
+           print(f"Course {course_id} added to your schedule.")
+           conn.commit()
+    def RemoveCourse(self): 
+        print("Remove Course was Successfully Used")
+        course_id = input("Enter the course ID to remove: ")
+        cursor.execute("DELETE FROM ENROLLMENT WHERE student_id = ? AND course_id = ?", (self.ID, course_id))
+        conn.commit()
+        print(f"Course {course_id} removed from your schedule.")
+    def Print(self):
+        print("Print Schedule was Successfully Used")
+        cursor.execute("SELECT COURSE.* FROM COURSE, ENROLLMENT WHERE COURSE.CRN = ENROLLMENT.course_id AND ENROLLMENT.student_id = ?", (self.ID,))
+        query_result = cursor.fetchall()
+        for i in query_result:
+             print(i)
+class Instructor(User):
+    #attribute
+    #constructor
+    def __init__(self, first, last, ID):
+        User.__init__(self, first, last, ID)
+    
+    #methods
+    def Assemble(self):
+      #  print("Print Schedule was Successfully Used")
+        u_class = input("Enter CRN of Class: ")
+        u_id = input("Enter Student ID: ")
+        cursor.execute("SELECT * FROM STUDENT WHERE ID =?", (u_id,))
+        query_result = cursor.fetchall()
+        for i in query_result:
+             print(i)
+        y_n = input("Add Student to Roster of " + u_class + "? (Y/N)\n")  
+        if y_n == "Y":    
+            cursor.execute("""INSERT INTO ENROLLMENT VALUES('%s','%s');""" % (u_id, u_class))
+            conn.commit()
+    def Print_roster(self):
+        print("Print Class List was Successfully Used")
+        course_id = input("Enter the course ID to print the roster: ")
+        cursor.execute("SELECT STUDENT.* FROM STUDENT JOIN ENROLLMENT ON STUDENT.ID = ENROLLMENT.student_id WHERE ENROLLMENT.course_id = ?", (course_id,))
+        query_result = cursor.fetchall()
+        for i in query_result:
+            print(i)
+class Admin(User):
+    #attribute
+    #constructor
+    def __init__(self, first, last, ID):
+        User.__init__(self, first, last, ID)
+    
+    #methods
+    def add_courses(self):
+        print("Add Courses was Successfully Used")
+        u_id = input("Enter CRN: ")
+        u_title = input("Enter Title: ")
+        u_DEPT = input("Enter DEPT (4 Characters): ")
+        u_time = input("Enter time (Ex: 8:00AM): ")
+        u_week = input("Enter weekdays (Ex: M/F): ")
+        u_semester = input("Enter semester: ")
+        u_year = input("Enter year: ")
+        u_credits = input("Enter credits: ")
+        cursor.execute("""INSERT INTO COURSE VALUES('%s', '%s', '%s', '%s', '%s', '%s','%s','%s');""" % (u_id, u_title, u_DEPT, u_time,u_week,u_semester,u_year,u_credits))
+        print(u_title + " was successfully added\n", )
+        conn.commit()
+    def remove_courses(self):
+        print("Remove Courses was Successfully Used")
+        u_id = input("Enter CRN: ")
+        # cursor.execute("SELECT TITLE FROM COURSE WHERE CRN = ?", (u_id))
+        # query_result = cursor.fetchall()
+        # for i in query_result:
+        #     print(i + " was successfully deleted\n", )
+        cursor.execute("DELETE FROM COURSE WHERE CRN = ?", (u_id,))
+        conn.commit()
+        print("Course with CRN " + u_id + " was deleted\n")
+
+    def add_remove_user(self):
+        print("Add/Remove Users was Successfully Used")
+    def add_remove_student(self):
+        print("Add/Remove Student from Course was Successfully Used")
+    def roster(self):
+        print("Search/Print Roster and Courses was Successfully Used")
+        
+
+
+import sqlite3
+conn=sqlite3.connect('assignment3_edit.db')
+cursor = conn.cursor()
+
+
+sql_command = """CREATE TABLE IF NOT EXISTS ENROLLMENT (
+student_id INTEGER NOT NULL,
+course_id INTEGER NOT NULL
+);"""
+cursor.execute(sql_command)
+conn.commit()
+
+
+def login(first, last, ID):
+    user_type = 0
+    first = first.capitalize()
+    last = last.capitalize()
+    cursor.execute("SELECT * FROM STUDENT WHERE ID = ? AND NAME = ? AND SURNAME = ?", (ID,first,last))
+    if cursor.fetchone(): 
+        user_type = 1
+        print("Logged In\n")
+    cursor.execute("SELECT * FROM INSTRUCTOR WHERE ID = ? AND NAME = ? AND SURNAME = ?", (ID, first, last))
+    if cursor.fetchone():
+        user_type = 2
+        print("Logged In\n")
+    cursor.execute("SELECT * FROM ADMIN WHERE ID = ? AND NAME = ? AND SURNAME = ?", (ID, first, last))
+    if cursor.fetchone():
+        user_type = 3
+        print("Logged In\n")
+    if user_type == 0:
+        print("Failed Login. Re-Enter Information\n")
+    return user_type
+
+
+
+
+user_type = 0
+while user_type == 0: 
+
+    first_name = input('Enter First Name:\n')
+    last_name = input('Enter Last Name:\n')
+    identification = input("Enter Your ID:\n")
+    user_type = login(first_name, last_name, identification)
+
+
+if user_type == 1:
+    User1 = Student(first_name.capitalize(), last_name.capitalize(), identification)
+    print("Welcome ", User1.first, " ", User1.last, " (Student)")
+    option = int(input('Please Select an Option\n 1. Search Courses\n 2. Add Course to Schedule\n 3. Remove Course From Schedule\n 4. Print Schedule\n 5. Log Off\n'))
+    while option != 5:
+        if option == 1:
+            search_option = int(input('Please Select an Option\n 1. Search All Courses\n 2. Search by Parameters\n3. Exit\n'))
+            while search_option != 3:
+                if search_option == 1:
+                    User1.Search()
+                if search_option == 2:
+                    User1.Search_Parameters()
+                search_option = int(input('Please Select an Option\n1. Search All Courses\n2. Search by Parameters\n3. Exit\n'))
+        if option == 2:
+            User1.AddCourse()
+        if option == 3:
+            User1.RemoveCourse()
+        if option == 4:
+            User1.Print()
+        if option == 5:
+            User1.getInfo()
+        option = int(input('Please Select an Option\n 1. Search Courses\n 2. Add Course to Schedule\n 3. Remove Course From Schedule\n 4. Print Schedule\n 5. Log Off\n'))
+elif user_type == 2:
+    User2 = Instructor(first_name, last_name, identification)
+    print("Welcome ", User2.first, " ", User2.last, " (Instructor)")
+    option = int(input('Please Select an Option\n 1. Search Courses\n 2. Assemble Roster\n 3. Print Roster\n 4. Print Info\n 5. Log Off\n'))
+    while option != 5:
+        if option == 1:
+            search_option = int(input('Please Select an Option\n 1. Search All Courses\n 2. Search by Parameters\n3. Exit\n'))
+            while search_option != 3:
+                if search_option == 1:
+                    User2.Search()
+                if search_option == 2:
+                    User2.Search_Parameters()
+                search_option = int(input('Please Select an Option\n1. Search All Courses\n2. Search by Parameters\n3. Exit\n'))
+        if option == 2:
+            User2.Assemble()
+        if option == 3:
+            User2.Print_roster()
+        if option == 4:
+          User2.getInfo();
+        option = int(input('Please Select an Option\n 1. Search Courses\n 2. Assemble Roster\n 3. Print Roster\n 4. Print Info\n 5. Log Off\n'))
+elif user_type == 3:
+    User3 = Admin(first_name, last_name, identification)
+    print("Welcome ", User3.first, " ", User3.last, " (Admin)")
+    option = int(input('Please Select an Option\n1. Search Courses\n2. Add Courses\n3. Remove Courses\n4. Add/Remove Student\n5. Search/Print Roster and Courses\n6. Print Info\n7. Log Off\n'))
+    while option != 7:
+        if option == 1:
+            search_option = int(input('Please Select an Option\n 1. Search All Courses\n 2. Search by Parameters\n3. Exit\n'))
+            while search_option != 3:
+                if search_option == 1:
+                    User3.Search()
+                if search_option == 2:
+                    User3.Search_Parameters()
+                search_option = int(input('Please Select an Option\n1. Search All Courses\n2. Search by Parameters\n3. Exit\n'))
+        if option == 2:
+            User3.add_courses()
+        if option == 3:
+            User3.remove_courses()
+        if option == 4:
+            User3.add_remove_student()
+        if option == 5:
+            User3.roster()
+        if option == 6:
+           User3.getInfo();
+        option = int(input('Please Select an Option\n1. Search Courses\n2. Add Courses\n3. Remove Courses\n4. Add/Remove Student\n5. Search/Print Roster and Courses\n6. Print Info\n7. Log Off\n'))
+    
+print ("Logging Off\n\n")
+conn.close()
+
