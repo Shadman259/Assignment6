@@ -351,7 +351,7 @@ elif user_type == 3:
 print ("Logging Off\n\n")
 
 class Test_test_2(unittest.TestCase):
-    def test_login(self):
+    def test_login(self): #Tucker
         #Student Logs IN
         s_log = login("Tucker","Moncey","10011")
         self.assertEqual(1,s_log,"Login Error for Student")
@@ -376,12 +376,12 @@ class Test_test_2(unittest.TestCase):
         #Admin enters all lowercase
         a_log_l = login("vera","rubin","30002")
         self.assertEqual(3,a_log_l,"Login Error for Admin (Lowercase)")
-    def test_search_all(self):
+    def test_search_all(self): #Tucker
         #Search All
         User1 = Student("Tucker","Moncey","10011")
         course_search = User1.Search()
         self.assertTrue(course_search,"Search All Courses Error")
-    def test_search_paramters(self):
+    def test_search_paramters(self): #Tucker
         User1 = Student("Tucker","Moncey","10011")
         #Correct CRN
         search_CRN = User1.search_CRN("1002")
