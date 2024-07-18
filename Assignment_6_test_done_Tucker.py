@@ -373,8 +373,8 @@ class Test_test_2(unittest.TestCase):
         #Admin enters ID of another Admin
         a_log_f = login("Vera","Rubin","30001")
         self.assertEqual(0,a_log_f,"Login Error for Admin (ID)")
-        #Admin enters all lowercase
-        a_log_l = login("vera","rubin","30002")
+        #Admin enters lowercase and uppercase (Random)
+        a_log_l = login("veRa","ruBiN","30002")
         self.assertEqual(3,a_log_l,"Login Error for Admin (Lowercase)")
     def test_search_all(self): #Tucker
         #Search All
