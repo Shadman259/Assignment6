@@ -375,7 +375,7 @@ class Test_test_2(unittest.TestCase):
         self.assertEqual(0,a_log_f,"Login Error for Admin (ID)")
         #Admin enters lowercase and uppercase (Random)
         a_log_l = login("veRa","ruBiN","30002")
-        self.assertEqual(3,a_log_l,"Login Error for Admin (Lowercase)")
+        self.assertEqual(3,a_log_l,"Login Error for Admin (Random Capitalization")
     def test_search_all(self): #Tucker
         #Search All
         User1 = Student("Tucker","Moncey","10011")
